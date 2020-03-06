@@ -15,6 +15,7 @@ func main() {
 	}
 
 	name := list[1]
+	fmt.Printf("#%v#", name)
 	info, err := os.Stat(name)
 	if err != nil {
 		fmt.Println("err=",err)
