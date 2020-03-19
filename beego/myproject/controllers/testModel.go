@@ -14,5 +14,8 @@ func (c *TestModelController) Get()  {
 
 	user := models.UserInfo{Id:80, Username:"wangwu", Password:"20203399"}
 	models.AddUser(&user)
-	c.Ctx.WriteString("call model success")
+	//c.Ctx.WriteString("call model success")
+
+	c.Data["Title"] = "leoli"
+	c.TplName = "test.tpl"
 }
