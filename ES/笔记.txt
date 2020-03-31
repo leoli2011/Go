@@ -1,0 +1,162 @@
+用数据库来实现搜索，是不太靠谱的。通常来说，性能会很差的
+
+原因
+------------
+1）描述上万文字 不可能一一进行判断
+2）比如我们想搜索 “生化危机” 生危机
+3）大量查询mysql比较低下
+
+不能数据库做搜索引擎
+
+
+全文检索
+-------------------------
+总结1：数据库里面的数据 比如100万条，按照之前思路数据库存储，其实就是要扫描100万次，而且每次扫描
+都需要匹配那个文本所有的字符，确认是否包含搜索的关键词，而且还不能将搜索的词拆分
+
+总结2：利用倒排索引，进行搜索的话，假设100万条数据，拆分词语 10000万条，那么在倒排索引中，就有10000万
+条数据，可能我们只索引前面几个就出来结果 ，10000万条 。最起码索引搜索还是比较快的
+
+ES介绍
+------------------
+Elasticsearch是一个实时分布式搜索和分析引擎。它用于全文搜索、结构化搜索、分析。
+
+Elasticsearch的适用场景
+-----------------------------
+1）维基百科，类似百度百科，牙膏，牙膏的维基百科，全文检索，高亮，搜索推荐。
+2）The Guardian（国外新闻网站），类似搜狐新闻，用户行为日志（点击，浏览，收藏，评论）+ 社交网络数据（对某某新闻的相关看法），数据分析，给到每篇新闻文章的作者，让他知道他的文章的公众反馈（好，坏，热门，垃圾，鄙视，崇拜）。
+3）Stack Overflow（国外的程序异常讨论论坛），IT问题，程序的报错，提交上去，有人会跟你讨论和回答，全文检索，搜索相关问题和答案，程序报错了，就会将报错信息粘贴到里面去，搜索有没有对应的答案
+4）GitHub（开源代码管理），搜索上千亿行代码。
+5）国内：站内搜索（电商，招聘，门户，等等），IT系统搜索（OA，CRM，ERP，等等），数据分析（ES热门的一个使用场景）。
+
+
+Elasticsearch的特点
+1）可以作为一个大型分布式集群（数百台服务器）技术，处理PB级数据，服务大公司；也可以运行在单机上，服务小公司
+2）Elasticsearch不是什么新技术，主要是将全文检索、数据分析以及分布式技术，合并在了一起，才形成了独一无二的ES；lucene（全文检索），商用的数据分析软件（也是有的），分布式数据库（mycat）
+3）对用户而言，是开箱即用的，非常简单，作为中小型的应用，直接3分钟部署一下ES，就可以作为生产环境的系统来使用了，数据量不大，操作不是太复杂
+4）数据库的功能面对很多领域是不够用的（事务，还有各种联机事务型的操作）；特殊的功能，比如全文检索，同义词处理，相关度排名，复杂数据分析，海量数据的近实时处理；Elasticsearch作为传统数据库的一个补充，提供了数据库所不能提供的很多功能
+
+Elasticsearch的核心概念
+-----------------------------
+1）近实时
+从写人数据到数据可以被搜索到有一个小延迟（大概1秒）；基于es搜索可以达到秒级
+
+2）Cluster(机器)
+集群包含多个节点，每个节点属于哪儿集群是通过配置（集群的名称默认是
+Elasticsearch）来决定的，一个集群就是一个节点 或者二个
+
+3）Noder（节点）
+一个机器，
+
+4）Index（索引--mysql数据库）
+索引包含一堆有相似结构的文档数据，比如可以有一个客户索引，商品分类索引，订单索引，索引有一个名称。
+一个Index包含多个docment，一个index就代表一类类似或者相同的docment
+product index(商品索引 )--->商品信息
+
+5）Type(类型表)
+ 每个索引里面可以有一个或者多个type，type是index中的一个逻辑数据分类，一个type下的docment，都有
+相同的field。
+
+博客 index(数据库)
+用户信息 type（表）---docment（一条数据）---field（字段）
+博客数据 type（表）---docment（一条数据）---field（字段）
+评论数据 type（表）---docment（一条数据）---field（字段）
+
+6）Document（文档-行）
+
+文档是es中的最小数据单元，一个document可以是一条客户数据，一条商品分类数据，
+一条订单数据，通常用JSON数据结构表示，每个index下的type中，都可以去存储多个document。
+
+
+7） Field （字段 列）
+Field是Elasticsearch的最小单位。一个document里面有多个field，每个field就是一个数据字段。
+
+8）mapping（映射-约束）
+
+
+Mysql 和 Elasticsearch 对比
+----------------------------------
+关系型数据库（比如Mysql）	非关系型数据库（Elasticsearch）
+数据库Database	索引Index
+表Table	类型Type
+数据行Row	文档Document
+数据列Column	字段Field
+约束 Schema	映射Mapping
+
+
+ES安装
+--------------------
+1）下载es
+https://www.elastic.co/cn/products/elasticsearch
+2）解压到/soft
+tar -xzvf elasticsearch-5.6.2.tar.gz -C /soft
+3)cd /soft/elasticsearch-5.6.2
+mkdir data
+mkdir logs
+4)修改配置文件/soft/elasticsearch-5.6.2/config/elasticsearch.yml
+
+cluster.name: my-application 集群名字
+node.name: node-1
+path.data: /soft/elasticsearch-5.6.2/data
+path.logs: /soft/elasticsearch-5.6.2/logs
+network.host: 192.168.154.201
+discovery.zen.ping.unicast.hosts: ["s201"]
+
+5)启动
+bin/elasticsearch
+
+6）修改用户centos（不能以root用户搭建）
+chown -R centos /soft/elasticsearch-5.6.2
+
+
+7）配置linux信息
+-----------------------
+切换root用户
+su root
+
+nano /etc/security/limits.conf
+-------------------------------
+添加如下内容:
+
+* soft nofile 65536
+
+* hard nofile 131072
+
+* soft nproc 2048
+
+* hard nproc 4096
+
+nano /etc/security/limits.d/90-nproc.conf
+-------------------------------------------
+修改如下内容：
+
+* soft nproc 1024
+
+#修改为
+
+* soft nproc 2048
+
+nano /etc/sysctl.conf 
+----------------------
+添加下面配置：
+
+vm.max_map_count=655360
+
+并执行命令：
+
+sysctl -p
+
+8）重启 
+9）验证
+http://192.168.154.201:9200/
+
+ 
+
+
+
+
+
+
+
+
+
