@@ -14,13 +14,18 @@ func ParseCity(content []byte) engine.ParseResult  {
 
 	result := engine.ParseResult{}
 
+	limit := 10
 	for _, m := range matcher {
 		fmt.Printf("city:%v, url:%v", string(m[2]), string(m[1]))
 		result.Requests = append(result.Requests, engine.Request{
 			Url:string(m[1]),
-			ParseFunc:engine.NilParseResult,
+			ParseFunc:ParsecityUser,
 		})
 		result.Items = append(result.Items,  "city:"+string(m[2]))
+		limit--
+		if limit  < 0 {
+			break
+		}
 	}
 
 	return result

@@ -14,12 +14,21 @@ import (
 )
 
 func Fetch(url string) ([]byte, error)  {
-	resp, err := http.Get(url)
+/*	resp, err := http.Get(url)
 	if err != nil {
 		panic(err)
 	}
 
-	defer resp.Body.Close()
+	defer resp.Body.Close()*/
+
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.62 Safari/537.36")
+	resp, err := client.Do(req)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("wrong status code:%d", resp.StatusCode)
