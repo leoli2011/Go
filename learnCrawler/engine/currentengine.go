@@ -32,6 +32,9 @@ func (e Concurrentengine) Run(seed... Request)  {
 
 	//把request放入channel里边
 	for _, r := range seed {
+		if isDuplicated(r.Url) {
+			continue
+		}
 		e.Sche.Submit(r)
 	}
 
@@ -46,9 +49,23 @@ func (e Concurrentengine) Run(seed... Request)  {
 		}
 
 		for _, request := range result.Requests {
+			if isDuplicated(request.Url) {
+				continue
+			}
 			e.Sche.Submit(request)
 		}
 	}
+}
+
+var visitedUrls = make(map[string]bool)
+
+func isDuplicated(url string) bool  {
+	if visitedUrls[url] {
+		return true
+	}
+	visitedUrls[url] = true
+
+	return false
 }
 
 /*
