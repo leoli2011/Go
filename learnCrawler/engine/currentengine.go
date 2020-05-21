@@ -8,21 +8,26 @@ type Concurrentengine struct {
 }
 
 type Scheduler interface {
+	ReadyNotifiler
 	//传入request方法
 	Submit(Request)
-	//创建一个channel
-	//ConfigureMasterWorkChannel(chan Request)
+
+	Run()
+	WorkerChan() chan Request
+}
+
+type ReadyNotifiler interface {
 	//传入线程对应的接收Request 的channel
 	WorkerReady(chan Request)
-	Run()
 }
+
 func (e Concurrentengine) Run(seed... Request)  {
 	out := make(chan ParseResult)
 	e.Sche.Run()
 
 	//启动worker
 	for i:=0; i<e.Workercnt; i++ {
-		createWorker(out, e.Sche)
+		createWorker(e.Sche.WorkerChan(), out, e.Sche)
 	}
 
 	//把request放入channel里边
@@ -49,8 +54,7 @@ func (e Concurrentengine) Run(seed... Request)  {
 /*
 创建工作任务
 */
-func createWorker(out chan ParseResult, s Scheduler)  {
-	in := make(chan Request)
+func createWorker(in chan Request, out chan ParseResult, s ReadyNotifiler)  {
 	go func() {
 		for {
 			s.WorkerReady(in)
