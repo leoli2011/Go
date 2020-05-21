@@ -11,9 +11,13 @@ import (
 	"golang.org/x/text/encoding/unicode"
 	"golang.org/x/text/transform"
 	"io/ioutil"
+	"time"
 )
 
+var rateLimiter = time.Tick(1000 * time.Millisecond)
+
 func Fetch(url string) ([]byte, error)  {
+	<-rateLimiter
 /*	resp, err := http.Get(url)
 	if err != nil {
 		panic(err)

@@ -15,12 +15,12 @@ func main() {
 	*/
 
 	e :=engine.Concurrentengine{
-		Sche:&scheduler.SimpleScheduler{},
+		Sche:&scheduler.QueuedScheduler{},
 		Workercnt:2,
 	}
 
 	e.Run(engine.Request{
-		"http://www.zhenai.com/zhenghun",
-		parse.ParseCity,
+		"http://www.zhenai.com/zhenghun/aba/",
+		parse.ParsecityUser,
 	})
 }
