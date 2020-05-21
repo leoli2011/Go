@@ -6,7 +6,7 @@ import (
 )
 
 const userreg = `<a href="(http://album.zhenai.com/u/[0-9]+)" [^>]*>([^<]+)</a>`
-const nextpage = `href="(http://www.zhenai.com/zhenghun/[^"]+)`
+//const nextpage = `href="(http://www.zhenai.com/zhenghun/[^"]+)`
 
 func ParsecityUser(content []byte) engine.ParseResult  {
 	res := regexp.MustCompile(userreg)
@@ -25,7 +25,7 @@ func ParsecityUser(content []byte) engine.ParseResult  {
 			break
 		}
 	}
-
+/*
 	res = regexp.MustCompile(nextpage)
 	matcher = res.FindAllSubmatch(content, -1)
 	for _, m := range matcher {
@@ -34,5 +34,6 @@ func ParsecityUser(content []byte) engine.ParseResult  {
 			ParsecityUser,
 		})
 	}
+*/
 	return result
 }

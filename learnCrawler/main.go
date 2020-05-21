@@ -4,6 +4,7 @@ import (
 	"learnCrawler/zhenai/parse"
 	"learnCrawler/engine"
 	"learnCrawler/scheduler"
+	"learnCrawler/persist"
 )
 
 func main() {
@@ -17,6 +18,7 @@ func main() {
 	e :=engine.Concurrentengine{
 		Sche:&scheduler.QueuedScheduler{},
 		Workercnt:2,
+		Itemchan: persist.ItemSave(),
 	}
 
 	e.Run(engine.Request{

@@ -1,10 +1,9 @@
 package engine
 
-import "log"
-
 type Concurrentengine struct {
 	Sche  Scheduler
 	Workercnt int
+	Itemchan chan interface{}
 }
 
 type Scheduler interface {
@@ -38,14 +37,15 @@ func (e Concurrentengine) Run(seed... Request)  {
 		e.Sche.Submit(r)
 	}
 
-	itemCount := 0
+	//itemCount := 0
 	//循环遍历结果
 	for {
 		result := <-out
 
 		for _, item := range result.Items {
-			log.Printf("Got item:#%d, %v\n", itemCount, item)
-			itemCount++
+			//log.Printf("Got item:#%d, %v\n", itemCount, item)
+			//itemCount++
+			go func() {e.Itemchan<-item}()
 		}
 
 		for _, request := range result.Requests {
