@@ -15,7 +15,7 @@ func main() {
 	*/
 
 	e :=engine.Concurrentengine{
-		Sche:&scheduler.SimpleScheduler{},
+		Sche:&scheduler.QueuedScheduler{},
 		Workercnt:2,
 	}
 
